@@ -89,10 +89,16 @@ function loging(is) {
     if(is) {
         $.ajax({
             url: "./api/login",
+            method: "POST",
             data: {
-
+                login: $("#loginInput").val(),
+                pass: $("#passInput").val()
             },
-            
+            success: function(request) {
+                console.log(request);
+                alert(request.login+"!");
+                $("#loginInput, #passInput").val("");
+            }
         });
     }
     else {

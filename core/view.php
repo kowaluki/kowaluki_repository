@@ -90,3 +90,19 @@
             exit();
         }
     }
+
+    class representation {
+        function __construct($file, $method) {
+            switch($method)
+            {
+                case "json":
+                    header("Content-type: application/json");
+                break;
+                case "xml":
+                    header("Content-type: application/xml");
+                break;
+            }
+            echo json_encode($file);
+            exit();
+        }
+    }

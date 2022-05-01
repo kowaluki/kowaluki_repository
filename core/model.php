@@ -1,7 +1,9 @@
 <?php
     namespace model;
     require_once "functions.php";
-    
+    require_once "view.php";
+
+    use view\representation;    
     use function functions\getip;
 
     class configuration {
@@ -20,17 +22,23 @@
                     exit();
                 break;
                 case "loadArticles":
-                    $mongo = new mongo($mongo_host,$mongo_port,$mongo_name,$mongo_collection,$mongo_user,$mongo_pass);
-                    //$mongo->change("mongo_host","localhost");
-                    $mongo->downloadData();
-                    if(!$mongo->getError()) {
-                        $result = $mongo->getResult();
-                        foreach($result as $article) {
-                            unset($article->modified);
-                        }
-                        header("Content-type: application/json");
-                        echo json_encode($result);
-                    }
+                    $mysql = new mysql('127.0.0.1','arts','root','', "SELECT * from articles;", "");
+                    $mysql->ask();
+                    $result = $mysql->getResult();
+                    $show = new representation($result,"json");
+                    exit();
+
+                    // $mongo = new mongo($mongo_host,$mongo_port,$mongo_name,$mongo_collection,$mongo_user,$mongo_pass);
+                    // //$mongo->change("mongo_host","localhost");
+                    // $mongo->downloadData();
+                    // if(!$mongo->getError()) {
+                    //     $result = $mongo->getResult();
+                    //     foreach($result as $article) {
+                    //         unset($article->modified);
+                    //     }
+                    //     header("Content-type: application/json");
+                    //     echo json_encode($result);
+                    // }
                     exit();
                 break;
                 case "prelogin":
@@ -41,7 +49,30 @@
                 break;
                 case "login":
                     if(isset($_POST['login']) && isset($_POST['pass'])) {
-
+                        $mysql = new mysql('127.0.0.1','arts','root','',"SELECT * from login WHERE user ='".$_POST['login']."' OR mail='".$_POST['login']."';",'');
+                        $mysql->ask();
+                        $result = $mysql->getResult();
+                        header("Content-type: appliaction/json");
+                        if(count($result)==0) {
+                            echo json_encode(array(
+                                "login"=>"Incorrect user"
+                            ));
+                        }
+                        else {
+                            
+                            $salt = $result['salt'];
+                            $direction = $result['direction'];
+                            $pass = $result['pass'];
+                            $direction==0 ? $newPass = $salt.$_POST['pass']: $newPass = $_POST['pass'].$salt;
+                            if(password_verify($newPass, $pass)) {
+                                echo json_encode(array(
+                                    "login"=>"success"));
+                            }
+                            else {
+                                echo json_encode(array(
+                                    "login"=>"incorrect pass"));
+                            }
+                        }
                     }
                     else {
                         return 403;
@@ -127,28 +158,66 @@
 
     class mysql {
         protected string $mysqli_host;
-        protected string $mysqli_port;
         protected string $mysqli_name;
-        protected string $mysqli_socket;
         protected string $mysqli_user;
         protected string $mysqli_pass;
         protected string $mysqli_query;
-        protected string $mysqli_table;
         protected string $mysqli_errors;
-        protected string $mysqli_result;
-        function __construct(string $mysqli_host="", string $mysqli_port="",string $mysqli_name="",string $mysqli_socket="",string $mysqli_user="admin",string $mysqli_pass="", string $mysqli_query = "SELECT *;", string $mysqli_table="") {
+        protected  $mysqli_result;
+        function __construct(string $mysqli_host="", string $mysqli_name="",string $mysqli_user="root",string $mysqli_pass="", string $mysqli_query = "SELECT *;", string $mysqli_table="") {
+            $this->mysqli_host = $mysqli_host;
+            $this->mysqli_name = $mysqli_name;
+            $this->mysqli_user = $mysqli_user;
+            $this->mysqli_pass = $mysqli_pass;
+            $this->mysqli_query = $mysqli_query;
+        }
+
+        function ask() {
             try {
-                $mysqli_connect = new mysqli_connect($mysqli_host,$mysqli_user,$mysqli_pass,$mysqli_name,$mysqli_port,$mysqli_socket);
+                $mysqli = new \mysqli($this->mysqli_host,$this->mysqli_user,$this->mysqli_pass,$this->mysqli_name);
                 $flag = false;
-                mysqli_connect_errno()===true ? throw new Exception(mysqli_connect_error()) : $flag = true;
+                $mysqli->connect_errno===true ? $flag = false : $flag = true;
                 if($flag) {
-                    $result = $mysqli->query("SELECT * FROM City", MYSQLI_USE_RESULT);
+                    if(!$result = $mysqli->query($this->mysqli_query)) {
+                        echo $mysqli->error;
+                        Throw new Exception($mysqli->error);
+                    }
+                    else 
+                    {
+                        $rows = $result->num_rows;
+                        if($rows==1) {
+                            $score = $result->fetch_assoc();
+                            $this->mysqli_result = $score;
+                        }
+                        else if($rows==0) {
+                            $this->mysqli_result = [];
+                        }
+                    }
+                    
                 }
-                mysqli_close($mysqli_connect);
+                mysqli_free_result($result);
+                mysqli_close($mysqli);
             }
             catch(Exception $e) {
-                $this->error = $e;
+                $this->mysqli_errors = $e;
             }
+        }
+
+        function isError() {
+            if(empty($this->mysqli_errors)) {
+                return false;
+            }
+            else {
+                return true;
+            }
+        }
+
+        function getError(){ 
+            return $this->mysqli_errors;
+        }
+
+        function getResult() {
+            return $this->mysqli_result;
         }
     }
 
