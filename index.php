@@ -1,5 +1,12 @@
 <?php
+    // echo phpinfo();
+    require_once "core/controller.php";
 
-    echo "Hello Laptop!";
+    use controller\ruter;
 
+    $ruter = new ruter;
+    $ruter->addRule("app","app.html");
+    $ruter->run();
+    exit();
+    
 ?>
