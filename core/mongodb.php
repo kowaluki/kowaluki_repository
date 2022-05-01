@@ -1,8 +1,8 @@
 <?php
-    $mongo_host = "127.0.0.1";
+    $mongo_host = "91.185.184.123";
     $mongo_port = "27017";
-    $mongo_name = "Arts";
-    $mongo_collection = "Articles";
-    $mongo_user = "admin";
-    $mongo_pass = "";
+    $mongo_name = "mo1482_articles";
+    $mongo_collection = "articles";
+    $mongo_user = "mo1482_articles";
+    $mongo_pass = "MongoDBPass1029384756";
 ?>

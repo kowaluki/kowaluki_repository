@@ -24,6 +24,7 @@
                     //$mongo->change("mongo_host","localhost");
                     $mongo->downloadData();
                     if(!$mongo->getError()) {
+                        echo "błąd";
                         $result = $mongo->getResult();
                         foreach($result as $article) {
                             unset($article->modified);
@@ -99,9 +100,9 @@
             }
         }
         
-        function downloadData() :bool{
+        function downloadData() :bool {
             try {
-                $mng = new \MongoDB\Driver\Manager("mongodb://$this->mongo_host:$this->mongo_port");
+                $mng = new \MongoDB\Driver\Manager("mongodb://$this->mongo_user:$this->mongo_pass@$this->mongo_host:$this->mongo_port/$this->mongo_user");
                 $query = new \MongoDB\Driver\Query($this->mongo_filters,$this->mongo_options); 
                 $rows = $mng->executeQuery("$this->mongo_name.$this->mongo_collection", $query);
                 $data = [];

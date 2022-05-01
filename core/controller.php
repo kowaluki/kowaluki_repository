@@ -16,7 +16,7 @@
             $this->main_page = $mainPage;
             $uri = strlen($url)===0 ? explode("/",$_SERVER['REQUEST_URI']) : explode("/",$url);
             $i = 0;
-            while($i<3) {
+            while($i<4) {
                 array_shift($uri); 
                 $i++;
             }
@@ -34,7 +34,8 @@
         function showRules() {
             return $this->rules;
         }
-        function run() {         
+        function run() {
+            //echo json_encode($this->url);
             switch($this->url[0]) {
                 case "":
                     $file = new file($this->main_page);
