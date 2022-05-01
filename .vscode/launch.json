@@ -8,7 +8,9 @@
             "type": "pwa-chrome",
             "request": "launch",
             "name": "Launch Chrome against localhost",
-            "url": "http://localhost/strony/projekt1/kowaluki_repository",
+            // "url": "http://localhost/strony/projekt1/kowaluki_repository",
+            //komputer
+            "url": "http://localhost/strony/repo/kowaluki_repository",
             "webRoot": "${workspaceFolder}"
         }
     ]

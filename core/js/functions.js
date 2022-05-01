@@ -3,7 +3,7 @@ function bind(start) {
     if(start) {
         let app = location.href;
         app = app.split("/");
-        app[5] ? createConstants(true): createConstants();
+        app[6] ? createConstants(true): createConstants();
     }
     else {
         createEvents();
@@ -12,7 +12,8 @@ function bind(start) {
 
 function createConstants(app) {
     let url = location.href;
-    url = url.split("/")[5];
+    url = url.split("/")[6];
+    console.log(url);
     if(url==="app") {
         $("html").attr("lang","en-EN");
         $("head").append("<meta charset='UTF-8' />");

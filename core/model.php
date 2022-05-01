@@ -24,7 +24,6 @@
                     //$mongo->change("mongo_host","localhost");
                     $mongo->downloadData();
                     if(!$mongo->getError()) {
-                        echo "błąd";
                         $result = $mongo->getResult();
                         foreach($result as $article) {
                             unset($article->modified);
