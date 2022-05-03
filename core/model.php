@@ -14,6 +14,8 @@
     class api {
         protected $url;
         function __construct(array $url) {
+            
+            Session_start();
             require_once "mongodb.php";
             require_once "mysql.php";
             switch($url[1]) {
@@ -21,23 +23,41 @@
                     header("Location: ./");
                     exit();
                 break;
-                case "loadArticles":
-                    $mysql = new mysql('127.0.0.1','arts','root','', "SELECT * from articles;", "");
-                    $mysql->ask();
-                    $result = $mysql->getResult();
-                    $show = new representation($result,"json");
+                
+                case "checkLoging":
+                    if(isset($_SESSION['login'])) {
+                        $flag = true;
+                    }
+                    else {
+                        $flag = false;
+                    }
+                    $show - new representation($flag, "json");
                     exit();
-
-                    // $mongo = new mongo($mongo_host,$mongo_port,$mongo_name,$mongo_collection,$mongo_user,$mongo_pass);
-                    // //$mongo->change("mongo_host","localhost");
-                    // $mongo->downloadData();
-                    // if(!$mongo->getError()) {
-                    //     $result = $mongo->getResult();
-                    //     foreach($result as $article) {
-                    //         unset($article->modified);
-                    //     }
-                    //     header("Content-type: application/json");
-                    //     echo json_encode($result);
+                break;
+                case "logout":
+                    unset($_SESSION['login']);
+                    exit();
+                break;
+                case "loadArticles":
+                    if(isset($_SESSION['login'])) {
+                        $mysqli = new mysqli('127.0.0.1','arts','root','', "SELECT * from articles;", "");
+                        $mysqli->ask();
+                        $result = $mysqli->getResult();
+                        $show = new representation($result,"json");
+                    }
+                        // $mongo = new mongo($mongo_host,$mongo_port,$mongo_name,$mongo_collection,$mongo_user,$mongo_pass);
+                        // //$mongo->change("mongo_host","localhost");
+                        // $mongo->downloadData();
+                        // if(!$mongo->getError()) {
+                        //     $result = $mongo->getResult();
+                        //     foreach($result as $article) {
+                        //         unset($article->modified);
+                        //     }
+                        //     $show = new representation($result, "json");
+                        // }
+                    // }
+                    // else {
+                    //     echo "nie";
                     // }
                     exit();
                 break;
@@ -49,9 +69,9 @@
                 break;
                 case "login":
                     if(isset($_POST['login']) && isset($_POST['pass'])) {
-                        $mysql = new mysql('127.0.0.1','arts','root','',"SELECT * from login WHERE user ='".$_POST['login']."' OR mail='".$_POST['login']."';",'');
-                        $mysql->ask();
-                        $result = $mysql->getResult();
+                        $mysqli = new mysqli('127.0.0.1','arts','root','',"SELECT * from login WHERE user ='".$_POST['login']."' OR mail='".$_POST['login']."';",'');
+                        $mysqli->ask();
+                        $result = $mysqli->getResult()[0];
                         header("Content-type: appliaction/json");
                         if(count($result)==0) {
                             echo json_encode(array(
@@ -59,12 +79,12 @@
                             ));
                         }
                         else {
-                            
                             $salt = $result['salt'];
                             $direction = $result['direction'];
                             $pass = $result['pass'];
                             $direction==0 ? $newPass = $salt.$_POST['pass']: $newPass = $_POST['pass'].$salt;
                             if(password_verify($newPass, $pass)) {
+                                $_SESSION['login'] = true;
                                 echo json_encode(array(
                                     "login"=>"success"));
                             }
@@ -79,6 +99,20 @@
                     }
                     exit();
                 break;
+                case "checkAuthor":
+                    if(isset($_SESSION['login'])) {
+                        $author = htmlentities($_GET['author'], ENT_QUOTES, "UTF-8");
+                        $mysqli = new mysqli('127.0.0.1','arts','root','', "SELECT * from articles WHERE author='$author' ;", "");
+                        $mysqli->ask();
+                        $result = $mysqli->getResult();
+                        $show = new representation($result,"json");
+                    }
+                    else {
+                        $array = array(
+                            "info"=>"only for logged"
+                        );
+                        $show = new representation ($array,"json");
+                    }
             }
         }
     }
@@ -156,7 +190,7 @@
 
     }
 
-    class mysql {
+    class mysqli {
         protected string $mysqli_host;
         protected string $mysqli_name;
         protected string $mysqli_user;
@@ -176,7 +210,7 @@
             try {
                 $mysqli = new \mysqli($this->mysqli_host,$this->mysqli_user,$this->mysqli_pass,$this->mysqli_name);
                 $flag = false;
-                $mysqli->connect_errno===true ? $flag = false : $flag = true;
+                $mysqli->connect_errno===true ? throw new Exception($mysqli->error) : $flag = true;
                 if($flag) {
                     if(!$result = $mysqli->query($this->mysqli_query)) {
                         echo $mysqli->error;
@@ -185,12 +219,15 @@
                     else 
                     {
                         $rows = $result->num_rows;
-                        if($rows==1) {
-                            $score = $result->fetch_assoc();
-                            $this->mysqli_result = $score;
-                        }
-                        else if($rows==0) {
+                        if($rows==0) {
                             $this->mysqli_result = [];
+                        }
+                        else {
+                            $array = [];
+                            while($row = $result->fetch_assoc()) {
+                                array_push($array, $row);
+                            }
+                            $this->mysqli_result = $array;
                         }
                     }
                     

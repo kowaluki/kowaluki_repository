@@ -9,6 +9,9 @@
     use view\file;
     use view\error;
 
+    
+    // Session_start();
+
     class ruter extends configuration {
         private $url;
         private array $rules = [];
@@ -54,6 +57,15 @@
                 break;
                 case "api":
                     $api = new api($this->url);
+                    exit();
+                break;
+                case "author":
+                    $file = new file("author.html");
+                    $file->readFile();
+                break;
+                case "article":
+                    $file = new file("article.html");
+                    $file->readFile();
                     exit();
                 break;
                 default:

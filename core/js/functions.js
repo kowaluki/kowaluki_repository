@@ -1,6 +1,11 @@
+let articles;
+
 function bind(start) {
     $("*").off();
-    if(start) {
+    if(location.href.split("/")[6]=="author") {
+        author();
+    }
+    else if(start) {
         let app = location.href;
         app = app.split("/");
         app[6] ? createConstants(true): createConstants();
@@ -10,17 +15,31 @@ function bind(start) {
     }
 }
 
+function checkloging() {
+    $.ajax({
+        url: "./api/checkLoging",
+        success: function(response) {
+            if(response) {
+                $("#login").hide();
+                $("#logout").show();
+                loadArticles();
+            }
+        }
+    });
+}
+
 function createConstants(app) {
     let url = location.href;
     url = url.split("/")[6];
-    console.log(url);
     if(url==="app") {
         $("html").attr("lang","en-EN");
         $("head").append("<meta charset='UTF-8' />");
         $("head").append("<title></title>");
         $("head").append("<link rel='stylesheet' type='text/css' href='./website/app.css' />");
         $("title").text("Articles");
+        checkloging();
     }
+    
     //Unselected body 
     $("body").attr("unselectable", "on").on("selectstart dragstart", false);
 
@@ -37,11 +56,11 @@ function createConstants(app) {
     $("body").prepend("<footer></footer>");
     $("footer").load("./elements/footer");
     $("body").prepend("<div id='login'>Log in</div>");
+    $("body").prepend("<div id='logout'>Log out</div>");
     $("body").prepend("<main></main>");
     $("body").prepend("<header></header>");
     $("header").load("./elements/header");
     //Load Articles
-    loadArticles();
     bind();
     //The ability to log in
 }
@@ -50,9 +69,33 @@ function loadArticles() {
     $.ajax({
         url: "./api/loadArticles",
         success: function(response) {
-            console.log(response);
+                articles = response;
+                showArticles();
         }
-    })
+    });
+}
+
+function showArticles() {
+    $("#x").click();
+    let number = 0;
+    $.each(articles,function(){
+        $("main").append('<div class="article" id="article_'+number+'"></div>');
+        $("#article_"+number).append('<p class="title">Title: <strong>'+this.title+'</strong></p>');
+        $("#article_"+number).append('<div class="date">'+this.date+'</div>');
+        $("#article_"+number).append('<div class="author">Author: <strong><a href="./author/'+this.author+'" title="'+this.author+' - article\'s author" target="_blank">'+this.author+'</a></strong></div>');
+        $("#article_"+number).append('<div class="content"><a href="./article/'+this.id+'" target="_blank">Show article...</a></div>');
+        number++;
+    });
+    $("#logout").click(function() {
+        $.ajax({
+            url: "./api/logout"
+        });
+        $("main").text("");
+        $("#logout").hide();
+        $("#login").show();
+        articles = "";
+        bind();
+    });
 }
 
 function createEvents() {
@@ -95,9 +138,14 @@ function loging(is) {
                 pass: $("#passInput").val()
             },
             success: function(request) {
-                console.log(request);
                 alert(request.login+"!");
                 $("#loginInput, #passInput").val("");
+                if(request.login=="success") {
+                    $("#login").hide();
+                    $("#logout").show();
+                    loadArticles();
+                    
+                }
             }
         });
     }
@@ -111,4 +159,36 @@ function loging(is) {
             }
         });
     }
+}
+
+function author() {
+    let author = location.href.split("/")[7];
+    checkAuthor(author);
+}
+
+function checkAuthor(author) {
+    $.ajax({
+        url: "../api/checkAuthor/",
+        method: "GET",
+        data: {
+            author: author
+        },
+        success: function(response) {
+            if(response.info=="only for logged") {
+                $("head").append("<title>Zaloguj się</title>");
+                $("body").append("<h2>Zaloguj się</h2>");
+            }
+            else {
+                if(response.length>0) {
+                    $("head").append("<title>"+author+"'s articles</title>");
+                    $("body").append("<h3>Author:</h3><h1>"+author+"</h1>");
+                    $("body").append("<h4>Number of articles: "+response.length+"</h4>");
+                }
+                else {
+                    $("head").append("<title>No user</title>");
+                    $("body").append("<h2>There is no such user</h2>");
+                }
+            }
+        }
+    })
 }

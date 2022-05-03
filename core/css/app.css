@@ -25,10 +25,12 @@ main {
     top: 100px;
     left: 0;
     width: 100vw;
-    max-height: calc(100% - 160px);
+    height: calc(100vh - 160px);
+    background: rgb(68, 198, 116);
+    max-height: calc(100vh - 160px);
     overflow: auto;
 }
-#login {
+#login, #logout {
     position: absolute;
     top: 0;
     right: 0;
@@ -37,6 +39,9 @@ main {
     font-size: 15px;
     text-align: center;
     cursor: pointer;
+}
+#logout {
+    display: none;
 }
 #dungeon {
     display: none;
@@ -58,4 +63,22 @@ main {
     color: white;
     font-weight: 700;
     cursor: pointer;
+}
+
+.article {
+    width: 50vw;
+    border: 3px solid black;
+    border-radius: 15px;
+    margin: 5px;
+    padding: 15px;
+    max-width: 500px;
+}
+.article .title {
+    width: 25%;
+}
+.article .author a {
+    color: red;
+}
+.article .content a {
+    color: blue;
 }
