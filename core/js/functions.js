@@ -5,6 +5,10 @@ function bind(start) {
     if(location.href.split("/")[6]=="author") {
         author();
     }
+    
+    else if(location.href.split("/")[6]=="article") {
+        article(location.href.split("/")[7]);
+    }
     else if(start) {
         let app = location.href;
         app = app.split("/");
@@ -13,6 +17,30 @@ function bind(start) {
     else {
         createEvents();
     }
+}
+
+function article(id) {
+    $.ajax({
+        url: "../api/showArticle/",
+        data: {
+            id: id
+        },
+        success: function(response){
+            if(response.info && response.info=="only for logged") {
+                alert("log in to view the article");
+                $("body").html("Go back to <a href='../'>home page</a>.")
+            }
+            else {
+                response = response[0];
+                console.log(response);
+                $("body").append('<h2>'+response.title+'</h2>');
+                $("body").prepend('<div id="date">'+response.date+'</div>');
+                $("head").append("<title>"+response.title+"</title>");
+                $("body").append('<p>Author: <a href="../author/'+response.author+'" title="'+response.author+' - article\'s author" target="_blank"><i>'+response.author+'</i></a></p>');
+                $("body").append('<div id="article">'+response.article+'</div>');
+            }
+        }
+    });
 }
 
 function checkloging() {
@@ -190,5 +218,15 @@ function checkAuthor(author) {
                 }
             }
         }
-    })
+    });
+    $.ajax({
+        url: "../api/showPersonalArticles/",
+        method: "GET",
+        data: {
+            personal: author
+        },
+        success: function(response) {
+            // COME BACK HERE
+        }
+    });
 }

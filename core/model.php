@@ -34,9 +34,45 @@
                     $show - new representation($flag, "json");
                     exit();
                 break;
+                case "showArticle":
+                    if(!isset($_SESSION['login'])) {
+                        $array = array(
+                            "info"=>"only for logged"
+                        );
+                        $show = new representation ($array,"json");
+                    }
+                    else {
+                        if(isset($_GET['id'])) {
+                            $id = htmlentities($_GET['id'], ENT_QUOTES, "UTF-8");
+                            $mysqli = new mysqli('127.0.0.1','arts','root','', "SELECT * from articles WHERE id='$id';", "");
+                            $mysqli->ask();
+                            $result = $mysqli->getResult();
+                            $show = new representation($result,"json");
+                            exit();
+                        }
+                    }
+                break;
                 case "logout":
                     unset($_SESSION['login']);
                     exit();
+                break;
+                case "showPersonalArticles":
+                    if(!isset($_SESSION['login'])) {
+                        $array = array(
+                            "info"=>"only for logged"
+                        );
+                        $show = new representation ($array,"json");
+                    }
+                    else {
+                        if(isset($_GET['personal'])) {
+                            $personal = htmlentities($_GET['personal'], ENT_QUOTES, "UTF-8");
+                            $mysqli = new mysqli('127.0.0.1','arts','root','', "SELECT * from articles WHERE author='$personal';", "");
+                            $mysqli->ask();
+                            $result = $mysqli->getResult();
+                            $show = new representation($result,"json");
+                            exit();
+                        }
+                    }
                 break;
                 case "loadArticles":
                     if(isset($_SESSION['login'])) {
