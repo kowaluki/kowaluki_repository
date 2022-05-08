@@ -203,14 +203,28 @@ function checkAuthor(author) {
         },
         success: function(response) {
             if(response.info=="only for logged") {
-                $("head").append("<title>Zaloguj się</title>");
-                $("body").append("<h2>Zaloguj się</h2>");
+                $("head").append("<title>Log in</title>");
+                $("body").append("<h2>Log in</h2>");
             }
             else {
                 if(response.length>0) {
                     $("head").append("<title>"+author+"'s articles</title>");
                     $("body").append("<h3>Author:</h3><h1>"+author+"</h1>");
                     $("body").append("<h4>Number of articles: "+response.length+"</h4>");
+                    $("body").append("<ul></ul>");
+                    $.ajax({
+                        url: "../api/showPersonalArticles/",
+                        method: "GET",
+                        data: {
+                            personal: author
+                        },
+                        success: function(response) {
+                            console.log(response);
+                            $.each(response, function(){
+                                $("ul").append("<li><a href='../article/"+this.id+"' target='_blank'>"+this.title+"</a></li>");
+                            });
+                        }
+                    });
                 }
                 else {
                     $("head").append("<title>No user</title>");
@@ -219,14 +233,5 @@ function checkAuthor(author) {
             }
         }
     });
-    $.ajax({
-        url: "../api/showPersonalArticles/",
-        method: "GET",
-        data: {
-            personal: author
-        },
-        success: function(response) {
-            // COME BACK HERE
-        }
-    });
+    
 }

@@ -44,7 +44,7 @@
                     else {
                         if(isset($_GET['id'])) {
                             $id = htmlentities($_GET['id'], ENT_QUOTES, "UTF-8");
-                            $mysqli = new mysqli('127.0.0.1','arts','root','', "SELECT * from articles WHERE id='$id';", "");
+                            $mysqli = new mysqli($mdb_host,$mdb_name,$mdb_user,$mdb_pass, "SELECT * from articles WHERE id='$id';", "");
                             $mysqli->ask();
                             $result = $mysqli->getResult();
                             $show = new representation($result,"json");
@@ -66,7 +66,7 @@
                     else {
                         if(isset($_GET['personal'])) {
                             $personal = htmlentities($_GET['personal'], ENT_QUOTES, "UTF-8");
-                            $mysqli = new mysqli('127.0.0.1','arts','root','', "SELECT * from articles WHERE author='$personal';", "");
+                            $mysqli = new mysqli($mdb_host,$mdb_name,$mdb_user,$mdb_pass,"SELECT * from articles WHERE author='$personal';", "");
                             $mysqli->ask();
                             $result = $mysqli->getResult();
                             $show = new representation($result,"json");
@@ -76,7 +76,7 @@
                 break;
                 case "loadArticles":
                     if(isset($_SESSION['login'])) {
-                        $mysqli = new mysqli('127.0.0.1','arts','root','', "SELECT * from articles;", "");
+                        $mysqli = new mysqli($mdb_host,$mdb_name,$mdb_user,$mdb_pass,"SELECT * from articles;", "");
                         $mysqli->ask();
                         $result = $mysqli->getResult();
                         $show = new representation($result,"json");
@@ -105,7 +105,7 @@
                 break;
                 case "login":
                     if(isset($_POST['login']) && isset($_POST['pass'])) {
-                        $mysqli = new mysqli('127.0.0.1','arts','root','',"SELECT * from login WHERE user ='".$_POST['login']."' OR mail='".$_POST['login']."';",'');
+                        $mysqli = new mysqli($mdb_host,$mdb_name,$mdb_user,$mdb_pass,"SELECT * from login WHERE user ='".$_POST['login']."' OR mail='".$_POST['login']."';",'');
                         $mysqli->ask();
                         $result = $mysqli->getResult()[0];
                         header("Content-type: appliaction/json");
@@ -138,7 +138,7 @@
                 case "checkAuthor":
                     if(isset($_SESSION['login'])) {
                         $author = htmlentities($_GET['author'], ENT_QUOTES, "UTF-8");
-                        $mysqli = new mysqli('127.0.0.1','arts','root','', "SELECT * from articles WHERE author='$author' ;", "");
+                        $mysqli = new mysqli($mdb_host,$mdb_name,$mdb_user,$mdb_pass,"SELECT * from articles WHERE author='$author' ;", "");
                         $mysqli->ask();
                         $result = $mysqli->getResult();
                         $show = new representation($result,"json");
