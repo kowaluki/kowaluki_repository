@@ -7,4 +7,10 @@
     $mdb_user = "root";
     $mdb_pass = "";
     $mdb_name = "arts";
+    $connect_mdb = array(
+        "host"=>$mdb_host,
+        "name"=>$mdb_name,
+        "user"=>$mdb_user,
+        "pass"=>$mdb_pass
+    );
 ?>

@@ -73,9 +73,8 @@ main {
     padding: 15px;
     max-width: 500px;
 }
-.article .title {
-    width: 25%;
-}
+/* .article .title {
+} */
 .article .author a {
     color: red;
 }

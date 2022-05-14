@@ -32,7 +32,6 @@ function article(id) {
             }
             else {
                 response = response[0];
-                console.log(response);
                 $("body").append('<h2>'+response.title+'</h2>');
                 $("body").prepend('<div id="date">'+response.date+'</div>');
                 $("head").append("<title>"+response.title+"</title>");
@@ -109,7 +108,13 @@ function showArticles() {
     $.each(articles,function(){
         $("main").append('<div class="article" id="article_'+number+'"></div>');
         $("#article_"+number).append('<p class="title">Title: <strong>'+this.title+'</strong></p>');
-        $("#article_"+number).append('<div class="date">'+this.date+'</div>');
+        if(this.date.$date.$numberLong) {
+            let $date = longToDate(this.date.$date.$numberLong);
+            $("#article_"+number).append('<div class="date">'+$date.dotsDMY+'</div>');
+        }
+        else {
+            $("#article_"+number).append('<div class="date">'+this.date+'</div>');
+        }
         $("#article_"+number).append('<div class="author">Author: <strong><a href="./author/'+this.author+'" title="'+this.author+' - article\'s author" target="_blank">'+this.author+'</a></strong></div>');
         $("#article_"+number).append('<div class="content"><a href="./article/'+this.id+'" target="_blank">Show article...</a></div>');
         number++;
@@ -234,4 +239,36 @@ function checkAuthor(author) {
         }
     });
     
+}
+
+function longToDate(long) {
+    let $date = new Date(parseInt(long));
+    let year = $date.getFullYear().toString();
+    let month = $date.getMonth() - 1;
+    month<10 ? month = "0"+month: month.toString();
+    let day = $date.getDate();
+    day<10 ? day = "0"+day: day = day.toString();
+    let hours = $date.getHours();
+    hours<10 ? hours = "0"+hours: hours = hours.toString();
+    let minutes = $date.getMinutes();
+    minutes<10 ? minutes = "0"+minutes: minutes = minutes.toString();
+    seconds = $date.getSeconds();
+    seconds<10 ? seconds = "0"+seconds: seconds = seconds.toString();
+    let timeZone = $date.getTimezoneOffset().toString();
+    let response = {
+        "year":year,
+        "month":month,
+        "day":day,
+        "hours":hours,
+        "minutes":minutes,
+        "seconds":seconds,
+        "timeZone":timeZone,
+        "dotsDMY": day+"."+month+"."+year,
+        "dotsYMD": year+"."+month+"."+day,
+        "dashDMY": day+"-"+month+"-"+year,
+        "dashYMD": year+"-"+month+"-"+day,
+        "shortTime": hours+":"+minutes,
+        "fullTime": hours+":"+minutes+":"+seconds
+    };
+    return response;
 }

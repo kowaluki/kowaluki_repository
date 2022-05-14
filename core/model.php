@@ -44,7 +44,7 @@
                     else {
                         if(isset($_GET['id'])) {
                             $id = htmlentities($_GET['id'], ENT_QUOTES, "UTF-8");
-                            $mysqli = new mysqli($mdb_host,$mdb_name,$mdb_user,$mdb_pass, "SELECT * from articles WHERE id='$id';", "");
+                            $mysqli = new mysqli($connect_mdb, "SELECT * from articles WHERE id='$id';", "");
                             $mysqli->ask();
                             $result = $mysqli->getResult();
                             $show = new representation($result,"json");
@@ -66,7 +66,7 @@
                     else {
                         if(isset($_GET['personal'])) {
                             $personal = htmlentities($_GET['personal'], ENT_QUOTES, "UTF-8");
-                            $mysqli = new mysqli($mdb_host,$mdb_name,$mdb_user,$mdb_pass,"SELECT * from articles WHERE author='$personal';", "");
+                            $mysqli = new mysqli($connect_mdb,"SELECT * from articles WHERE author='$personal';", "");
                             $mysqli->ask();
                             $result = $mysqli->getResult();
                             $show = new representation($result,"json");
@@ -75,22 +75,22 @@
                     }
                 break;
                 case "loadArticles":
-                    if(isset($_SESSION['login'])) {
-                        $mysqli = new mysqli($mdb_host,$mdb_name,$mdb_user,$mdb_pass,"SELECT * from articles;", "");
-                        $mysqli->ask();
-                        $result = $mysqli->getResult();
-                        $show = new representation($result,"json");
-                    }
-                        // $mongo = new mongo($mongo_host,$mongo_port,$mongo_name,$mongo_collection,$mongo_user,$mongo_pass);
-                        // //$mongo->change("mongo_host","localhost");
-                        // $mongo->downloadData();
-                        // if(!$mongo->getError()) {
-                        //     $result = $mongo->getResult();
-                        //     foreach($result as $article) {
-                        //         unset($article->modified);
-                        //     }
-                        //     $show = new representation($result, "json");
-                        // }
+                    // if(isset($_SESSION['login'])) {
+                    //     $mysqli = new mysqli($connect_mdb,"SELECT * from articles;", "");
+                    //     $mysqli->ask();
+                    //     $result = $mysqli->getResult();
+                    //     $show = new representation($result,"json");
+                    // }
+                        $mongo = new mongo($mongo_connect);
+                        //$mongo->change("mongo_host","localhost");
+                        $mongo->downloadData();
+                        if(!$mongo->getError()) {
+                            $result = $mongo->getResult();
+                            foreach($result as $article) {
+                                unset($article->modified);
+                            }
+                            $show = new representation($result, "json");
+                        }
                     // }
                     // else {
                     //     echo "nie";
@@ -105,7 +105,7 @@
                 break;
                 case "login":
                     if(isset($_POST['login']) && isset($_POST['pass'])) {
-                        $mysqli = new mysqli($mdb_host,$mdb_name,$mdb_user,$mdb_pass,"SELECT * from login WHERE user ='".$_POST['login']."' OR mail='".$_POST['login']."';",'');
+                        $mysqli = new mysqli($connect_mdb,"SELECT * from login WHERE user ='".$_POST['login']."' OR mail='".$_POST['login']."';",'');
                         $mysqli->ask();
                         $result = $mysqli->getResult()[0];
                         header("Content-type: appliaction/json");
@@ -138,7 +138,7 @@
                 case "checkAuthor":
                     if(isset($_SESSION['login'])) {
                         $author = htmlentities($_GET['author'], ENT_QUOTES, "UTF-8");
-                        $mysqli = new mysqli($mdb_host,$mdb_name,$mdb_user,$mdb_pass,"SELECT * from articles WHERE author='$author' ;", "");
+                        $mysqli = new mysqli($connect_mdb,"SELECT * from articles WHERE author='$author' ;", "");
                         $mysqli->ask();
                         $result = $mysqli->getResult();
                         $show = new representation($result,"json");
@@ -165,13 +165,13 @@
         protected array $mongo_options;
         protected array $mongo_result;
         protected $mongo_error = false;
-        function __construct(string $mongo_host, string $mongo_port,string $mongo_name,string $mongo_collection,string $mongo_user,string $mongo_pass,array $filters = [],array $options = []) {
-            $this->mongo_host = $mongo_host;
-            $this->mongo_port = $mongo_port;
-            $this->mongo_name = $mongo_name;
-            $this->mongo_collection = $mongo_collection;
-            $this->mongo_user = $mongo_user;
-            $this->mongo_pass = $mongo_pass;
+        function __construct(array $connect,array $filters = [],array $options = []) {
+            $this->mongo_host = $connect["host"];
+            $this->mongo_port = $connect["port"];
+            $this->mongo_name = $connect["name"];
+            $this->mongo_collection = $connect["collection"];
+            $this->mongo_user = $connect["user"];
+            $this->mongo_pass = $connect["pass"];
             $this->mongo_options = $options;
             $this->mongo_filters = $filters;
         }
@@ -234,11 +234,11 @@
         protected string $mysqli_query;
         protected string $mysqli_errors;
         protected  $mysqli_result;
-        function __construct(string $mysqli_host="", string $mysqli_name="",string $mysqli_user="root",string $mysqli_pass="", string $mysqli_query = "SELECT *;", string $mysqli_table="") {
-            $this->mysqli_host = $mysqli_host;
-            $this->mysqli_name = $mysqli_name;
-            $this->mysqli_user = $mysqli_user;
-            $this->mysqli_pass = $mysqli_pass;
+        function __construct(array $connect_mdb, string $mysqli_query = "SELECT *;") {
+            $this->mysqli_host = $connect_mdb["host"];
+            $this->mysqli_name = $connect_mdb["name"];
+            $this->mysqli_user = $connect_mdb["user"];
+            $this->mysqli_pass = $connect_mdb["pass"];
             $this->mysqli_query = $mysqli_query;
         }
 
