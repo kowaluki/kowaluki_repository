@@ -1,11 +1,9 @@
 let articles;
-
 function bind(start) {
     $("*").off();
     if(location.href.split("/")[6]=="author") {
         author();
     }
-    
     else if(location.href.split("/")[6]=="article") {
         article(location.href.split("/")[7]);
     }
@@ -18,7 +16,6 @@ function bind(start) {
         createEvents();
     }
 }
-
 function article(id) {
     $.ajax({
         url: "../api/showArticle/",
@@ -41,7 +38,6 @@ function article(id) {
         }
     });
 }
-
 function checkloging() {
     $.ajax({
         url: "./api/checkLoging",
@@ -54,7 +50,6 @@ function checkloging() {
         }
     });
 }
-
 function createConstants(app) {
     let url = location.href;
     url = url.split("/")[6];
@@ -66,10 +61,8 @@ function createConstants(app) {
         $("title").text("Articles");
         checkloging();
     }
-    
     //Unselected body 
     $("body").attr("unselectable", "on").on("selectstart dragstart", false);
-
     //dungeon
     if(app) {
         $("body").prepend("<div id='dungeon'></div>");
@@ -77,8 +70,6 @@ function createConstants(app) {
         $("#dungeon").append("<div id='x'>X</div>");
         $("#logreg").load("./elements/logreg");
     }
-
-
     //C&L: header, main and footer
     $("body").prepend("<footer></footer>");
     $("footer").load("./elements/footer");
@@ -91,20 +82,20 @@ function createConstants(app) {
     bind();
     //The ability to log in
 }
-
 function loadArticles() {
     $.ajax({
         url: "./api/loadArticles",
         success: function(response) {
-                articles = response;
-                showArticles();
+            articles = response;
+            showArticles();
         }
     });
 }
-
 function showArticles() {
     $("#x").click();
     let number = 0;
+    let timeOpen = 700;
+    let timeDelay = 0;
     $.each(articles,function(){
         $("main").append('<div class="article" id="article_'+number+'"></div>');
         $("#article_"+number).append('<p class="title">Title: <strong>'+this.title+'</strong></p>');
@@ -117,18 +108,28 @@ function showArticles() {
         }
         $("#article_"+number).append('<div class="author">Author: <strong><a href="./author/'+this.author+'" title="'+this.author+' - article\'s author" target="_blank">'+this.author+'</a></strong></div>');
         $("#article_"+number).append('<div class="content"><a href="./article/'+this.id+'" target="_blank">Show article...</a></div>');
+        
+        $(".article").css("opacity","0");
         number++;
+    });
+    let length = (timeOpen / $(".article").length);
+    $($(".article").get()).each(function(){
+        $(this).stop().delay(timeDelay).animate({
+            "opacity":1
+        },180);
+        console.log(timeDelay);
+        timeDelay += length;
     });
     $("#logout").click(function() {
         $.ajax({
             url: "./api/logout"
         });
-        let time = 0;
-        let length = ($(".article").length)*200;
-        console.log(length);
-        $.each($(".article"), function(){
-            $(this).delay(time).fadeOut();
-            time += 200;
+        let timeSet = 700;
+        timeDelay = 0;
+        length = timeSet / $(".article").length;
+        $($(".article").get().reverse()).each(function(){
+            $(this).stop().delay(timeDelay).fadeOut(180);
+            timeDelay += length;
         });
         setTimeout(() => {
             $("main").text("");
@@ -136,10 +137,12 @@ function showArticles() {
             $("#login").show();
             articles = "";
             bind();
-        }, length);
+            if(alert("Safety log out!")) {
+                console.log("aha");
+            }
+        }, timeSet+180);
     });
 }
-
 function createEvents() {
     $("#x").click(function(){
         $("input").text("");
@@ -150,7 +153,6 @@ function createEvents() {
         $("#dungeon, #logreg").stop().fadeIn();
         $("#dungeon").css("display", "flex");
     });
-    
     setTimeout(() => {
         $("form").attr("onsubmit","return false");
         $("form").submit(function(json) {
@@ -158,7 +160,6 @@ function createEvents() {
         });
     },100);
 }
-
 function submit(json,id) {
     switch(id) {
         case "logs":
@@ -169,7 +170,6 @@ function submit(json,id) {
         break;
     }
 }
-
 function loging(is) {
     if(is) {
         $.ajax({
@@ -186,7 +186,6 @@ function loging(is) {
                     $("#login").hide();
                     $("#logout").show();
                     loadArticles();
-                    
                 }
             }
         });
@@ -202,7 +201,6 @@ function loging(is) {
         });
     }
 }
-
 function author() {
     let author = location.href.split("/")[7];
     checkAuthor(author);
