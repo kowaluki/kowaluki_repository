@@ -75,22 +75,22 @@
                     }
                 break;
                 case "loadArticles":
-                    // if(isset($_SESSION['login'])) {
-                    //     $mysqli = new mysqli($connect_mdb,"SELECT * from articles;", "");
-                    //     $mysqli->ask();
-                    //     $result = $mysqli->getResult();
-                    //     $show = new representation($result,"json");
-                    // }
-                        $mongo = new mongo($mongo_connect);
-                        //$mongo->change("mongo_host","localhost");
-                        $mongo->downloadData();
-                        if(!$mongo->getError()) {
-                            $result = $mongo->getResult();
-                            foreach($result as $article) {
-                                unset($article->modified);
-                            }
-                            $show = new representation($result, "json");
-                        }
+                    if(isset($_SESSION['login'])) {
+                        $mysqli = new mysqli($connect_mdb,"SELECT * from articles;", "");
+                        $mysqli->ask();
+                        $result = $mysqli->getResult();
+                        $show = new representation($result,"json");
+                    }
+                        // $mongo = new mongo($mongo_connect);
+                        // //$mongo->change("mongo_host","localhost");
+                        // $mongo->downloadData();
+                        // if(!$mongo->getError()) {
+                        //     $result = $mongo->getResult();
+                        //     foreach($result as $article) {
+                        //         unset($article->modified);
+                        //     }
+                        //     $show = new representation($result, "json");
+                        // }
                     // }
                     // else {
                     //     echo "nie";

@@ -108,7 +108,7 @@ function showArticles() {
     $.each(articles,function(){
         $("main").append('<div class="article" id="article_'+number+'"></div>');
         $("#article_"+number).append('<p class="title">Title: <strong>'+this.title+'</strong></p>');
-        if(this.date.$date.$numberLong) {
+        if(typeof this.date.$date !== "undefined") {
             let $date = longToDate(this.date.$date.$numberLong);
             $("#article_"+number).append('<div class="date">'+$date.dotsDMY+'</div>');
         }
@@ -123,11 +123,20 @@ function showArticles() {
         $.ajax({
             url: "./api/logout"
         });
-        $("main").text("");
-        $("#logout").hide();
-        $("#login").show();
-        articles = "";
-        bind();
+        let time = 0;
+        let length = ($(".article").length)*200;
+        console.log(length);
+        $.each($(".article"), function(){
+            $(this).delay(time).fadeOut();
+            time += 200;
+        });
+        setTimeout(() => {
+            $("main").text("");
+            $("#logout").hide();
+            $("#login").show();
+            articles = "";
+            bind();
+        }, length);
     });
 }
 

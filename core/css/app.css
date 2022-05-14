@@ -39,9 +39,20 @@ main {
     font-size: 15px;
     text-align: center;
     cursor: pointer;
+    border-radius: 5px;
+    padding: 5px;
+    border: 2px solid black;
+    transition: 0.2s ease-in-out;
+}
+#login:active, #logout:active {
+    transform:scale(0.9,0.85);
 }
 #logout {
     display: none;
+}
+
+form input {
+    text-align: center;
 }
 #dungeon {
     display: none;
