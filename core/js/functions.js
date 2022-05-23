@@ -31,7 +31,7 @@ function article(id) {
                 response = response[0];
                 $("body").append('<h2>'+response.title+'</h2>');
                 $("body").prepend('<div id="date">'+response.date+'</div>');
-                $("head").append("<title>"+response.title+"</title>");
+                $("head title").text(response.title);
                 $("body").append('<p>Author: <a href="../author/'+response.author+'" title="'+response.author+' - article\'s author" target="_blank"><i>'+response.author+'</i></a></p>');
                 $("body").append('<div id="article">'+response.article+'</div>');
             }
@@ -120,6 +120,20 @@ function showArticles() {
         console.log(timeDelay);
         timeDelay += length;
     });
+    
+    $('html').on('click', function() {
+        $(".article").removeClass('chosen');
+    });
+    $(".article").on("click", function(e){
+        e.stopPropagation(); //Nie przekazuje funkcji od rodzica
+        $(".article").removeClass("chosen");
+        $(this).addClass("chosen");
+    });
+    $(".article").on("dblclick",function(e){
+        e.stopPropagation();
+        let link = $(this).find(".content").find("a").attr("href");
+        window.open(link);
+    });
     $("#logout").click(function() {
         $.ajax({
             url: "./api/logout"
@@ -205,7 +219,6 @@ function author() {
     let author = location.href.split("/")[7];
     checkAuthor(author);
 }
-
 function checkAuthor(author) {
     $.ajax({
         url: "../api/checkAuthor/",
@@ -245,9 +258,7 @@ function checkAuthor(author) {
             }
         }
     });
-    
 }
-
 function longToDate(long) {
     let $date = new Date(parseInt(long));
     let year = $date.getFullYear().toString();
